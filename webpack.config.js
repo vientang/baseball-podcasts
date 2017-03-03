@@ -2,7 +2,7 @@ var webpack = require('webpack')
 var path = require('path')
 
 module.exports = {
-	entry: {app: './src/app.js'},
+	entry: {app: './src/App.js'},
 	output: {
 		filename: 'public/build/bundle.js',
 		sourceMapFilename: 'public/build/bundle.map'
