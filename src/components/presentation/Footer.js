@@ -20,7 +20,7 @@ export default (props) => {
       <div className="line white"></div>
       <div className="footer-copyright primary-color">
         <div className="container">
-        2016 Codnauts
+        2017 Baseball Podcasts
         <a className="grey-text text-lighten-4 right" href="#!">Privacy Policy</a>
         </div>
       </div>

@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { Featured } from './components/layout'
+import store from './store'
+import { Provider } from 'react-redux'
 
 class App extends Component {
 	render() {
 		return (
-			<Featured />
+			<Provider store={store.initialize()}>
+				<Featured />
+			</Provider>
 		)
 	}
 }
