@@ -82,8 +82,18 @@ class Playlist extends Component {
 			this.props.podcastsReceived(response)
 		})
 		.catch(err => {
-			console.log('ERROR in playlist: '+JSON.stringify(err))
+			console.log('ERROR in searchPodcasts: '+JSON.stringify(err))
 		})
+	}
+
+	componentDidUpdate() {
+		console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
+		const selected = this.props.podcasts.selected
+		if (!selected) return
+		// feedUrl needs to come after the above statement or there will be an error
+		const feedUrl = this.props.podcasts.selected.feedUrl
+		if (!feedUrl) return
+		
 	}
 
 	render(){
