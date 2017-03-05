@@ -2,12 +2,14 @@ var webpack = require('webpack')
 var path = require('path')
 
 module.exports = {
-	entry: {app: './src/App.js'},
+	entry: {
+		app: './src/app.js'
+	},
 	output: {
 		filename: 'public/build/bundle.js',
 		sourceMapFilename: 'public/build/bundle.map'
 	},
-	devtool: '#sourcemap',
+	devtool: '#source-map',
 	module: {
 		loaders: [
 			{
@@ -19,4 +21,5 @@ module.exports = {
 			}
 		]
 	}
+
 }
