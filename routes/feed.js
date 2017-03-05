@@ -1,6 +1,7 @@
 var express = require('express');
 var superagent = require('superagent');
 var router = express.Router();
+var parseString = require('xml2js').parseString;
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -23,7 +24,19 @@ router.get('/', function(req, res, next) {
 			  })
 			  return
 			}
-			res.send(response.text)
+			// parse data from xml to json
+			var xml = response.text
+			parseString(xml, function (err, result) {
+				var rss = result.rss
+				var channel = rss.channel
+				if (channel.length) {
+					channel = channel[0]
+				}
+			  res.json({
+			  	confirmation: "Success", 
+			  	podcast: channel
+			  })
+			});			
 		})
 })
 

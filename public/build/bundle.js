@@ -10785,7 +10785,7 @@ var Podcasts = function (_Component) {
 									_react2.default.createElement(
 										'p',
 										{ className: 'white-text' },
-										'podcast.collectionName'
+										podcast.collectionName
 									)
 								)
 							)

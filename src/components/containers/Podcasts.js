@@ -25,7 +25,7 @@ class Podcasts extends Component {
 				          <img src={podcast.artworkUrl600} alt="" />
 				          <div className="opacity-overlay valign-wrapper">
 				            <div className="valign center width-100">
-				              <p className="white-text">podcast.collectionName</p>
+				              <p className="white-text">{podcast.collectionName}</p>
 				            </div>
 				          </div>
 				        </a>

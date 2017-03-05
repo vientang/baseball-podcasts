@@ -1,4 +1,5 @@
 [2017 Baseball Podcasts]: https://github.com/vientang/baseball-podcasts.git
+[Audio Player]: https://github.com/DIYgod/APlayer
 
 # baseball-podcasts
 Baseball season is coming! Here's a podcast audio streamer for Major League Baseball so you stay up to date with the latest news, stats, opinions, etc. The podcasts can be streamed directly through the browser of your mobile device or computer.
@@ -10,7 +11,7 @@ What does it do? Baseball Podcasts will play your favorite baseball podcasts - p
 1. React
 2. Redux
 3. Node
-4. Audio Player
+4. [Audio Player][]
 5. iTunes API
 2. Mobile UI
 
