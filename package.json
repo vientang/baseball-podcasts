@@ -11,6 +11,7 @@
     "url": "git+https://github.com/vientang/baseball-podcasts.git"
   },
   "dependencies": {
+    "aplayer": "^1.5.8",
     "babel-core": "^6.23.1",
     "babel-loader": "^6.3.2",
     "babel-preset-es2015": "^6.22.0",

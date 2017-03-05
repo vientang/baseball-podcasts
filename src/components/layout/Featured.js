@@ -7,7 +7,7 @@ class Featured extends Component {
 		return (
 			<div>
 				<div id="main"> 
-					<Playlist />       
+					<Playlist />
 	        <div className="animated fadeinup delay-1">
 	        	<Podcasts />
 	          <div className="clr"></div>

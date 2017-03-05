@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import actions from '../../actions'
 
 class Podcasts extends Component {
+
 	render() {
 		const list = this.props.podcasts.all || []
 
