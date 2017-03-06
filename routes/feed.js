@@ -4,7 +4,7 @@ var router = express.Router();
 var parseString = require('xml2js').parseString;
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res, next) {	
 	var url = req.query.url
 	if (url == null) {
 		res.json({
@@ -24,6 +24,7 @@ router.get('/', function(req, res, next) {
 			  })
 			  return
 			}
+
 			// parse data from xml to json
 			var xml = response.text
 			parseString(xml, function (err, result) {
@@ -36,7 +37,7 @@ router.get('/', function(req, res, next) {
 			  	confirmation: "Success", 
 			  	podcast: channel
 			  })
-			});			
+			})			
 		})
 })
 

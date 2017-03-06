@@ -10583,13 +10583,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Playlist = function (_Component) {
 	_inherits(Playlist, _Component);
 
-	function Playlist(props) {
+	function Playlist() {
 		_classCallCheck(this, Playlist);
 
-		var _this = _possibleConstructorReturn(this, (Playlist.__proto__ || Object.getPrototypeOf(Playlist)).call(this, props));
+		var _this = _possibleConstructorReturn(this, (Playlist.__proto__ || Object.getPrototypeOf(Playlist)).call(this));
 
 		_this.state = {
-			tracklist: []
+			tracklist: null,
+			player: null
 		};
 		_this.searchPodcasts = _this.searchPodcasts.bind(_this);
 		return _this;
@@ -10597,7 +10598,19 @@ var Playlist = function (_Component) {
 
 	_createClass(Playlist, [{
 		key: 'componentDidMount',
-		value: function componentDidMount() {
+		value: function componentDidMount() {}
+	}, {
+		key: 'initializePlayer',
+		value: function initializePlayer(list) {
+			var subList = [];
+			if (list.length > 3) {
+				for (var i = 0; i < 3; i++) {
+					subList.push(list[i]);
+				}
+			} else {
+				subList = Object.assign([], list);
+			}
+
 			var ap1 = new _aplayer2.default({
 				element: document.getElementById('player'),
 				narrow: false,
@@ -10607,12 +10620,7 @@ var Playlist = function (_Component) {
 				theme: '#e6d0b2',
 				preload: 'metadata',
 				mode: 'circulation',
-				music: [{
-					title: 'Preparation',
-					author: 'Hans Zimmer/Richard Harvey',
-					url: 'http://devtest.qiniudn.com/Preparation.mp3',
-					pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-				}]
+				music: subList
 			});
 			ap1.on('play', function () {
 				console.log('play');
@@ -10635,6 +10643,11 @@ var Playlist = function (_Component) {
 			ap1.on('error', function () {
 				console.log('error');
 			});
+
+			this.setState({
+				trackList: subList,
+				player: ap1
+			});
 		}
 	}, {
 		key: 'searchPodcasts',
@@ -10655,12 +10668,14 @@ var Playlist = function (_Component) {
 		value: function componentDidUpdate() {
 			var _this3 = this;
 
-			// console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
 			var selected = this.props.podcasts.selected;
 			if (!selected) return;
 			// feedUrl needs to come after the above statement or there will be an error
 			var feedUrl = this.props.podcasts.selected.feedUrl;
 			if (!feedUrl) return;
+
+			// prevent componentDidUpdate from continuously running
+			if (this.state.tracklist) return;
 
 			var endpoint = '/feed';
 			_utils.APIClient.get(endpoint, { url: feedUrl }).then(function (response) {
@@ -10670,16 +10685,20 @@ var Playlist = function (_Component) {
 
 				item.forEach(function (track, i) {
 					var trackInfo = {};
-					trackInfo['title'] = 'Title' + i;
-					trackInfo['author'] = 'Author' + i;
-					trackInfo['pic'] = 'http://www.podcastonesales.com/images/logos/pod_PMT_2_1400.jpg';
+					trackInfo['title'] = track.title[0];
+					trackInfo['author'] = _this3.props.podcasts.selected.collectionName;
+					trackInfo['pic'] = _this3.props.podcasts.selected['artworkUrl600'];
 
 					var enclosure = track.enclosure[0]['$'];
 					trackInfo['url'] = enclosure.url;
 					list.push(trackInfo);
 				});
-				console.log('Playlist - componentDidUpdate: ' + JSON.stringify(list));
-				_this3.setState({ tracklist: list });
+
+				// console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))				
+
+				if (_this3.state.player == null) {
+					_this3.initializePlayer(list);
+				}
 			}).catch(function (err) {
 				console.log('Playlist - ERROR in componentDidUpdate: ' + JSON.stringify(err));
 			});
@@ -10951,7 +10970,7 @@ exports.default = function (props) {
           _react2.default.createElement(
             "p",
             { className: "center-align grey-text text-lighten-4" },
-            "You can use rows and columns here to organize your footer content."
+            "A heap of baseball podcasts."
           ),
           _react2.default.createElement(
             "div",

@@ -6,15 +6,29 @@ import APlayer from 'aplayer'
 import actions from '../../actions'
 
 class Playlist extends Component {
-	constructor(props) {
-		super(props)
+	constructor() {
+		super()
 		this.state = {
-			tracklist: []
+			tracklist: null,
+			player: null
 		}
 		this.searchPodcasts = this.searchPodcasts.bind(this)
 	}
 
-	componentDidMount() {
+	componentDidMount() {		
+
+	}
+
+	initializePlayer(list) {
+		let subList = [];
+		if (list.length > 3) {
+			for (var i = 0; i < 3; i++) {
+				subList.push(list[i]);
+			}
+		} else { 
+			subList = Object.assign([], list);
+		}
+
 		var ap1 = new APlayer({
 	    element: document.getElementById('player'),
 	    narrow: false,
@@ -24,14 +38,7 @@ class Playlist extends Component {
 	    theme: '#e6d0b2',
 	    preload: 'metadata',
 	    mode: 'circulation',
-	    music: [
-	    	{
-	        title: 'Preparation',
-	        author: 'Hans Zimmer/Richard Harvey',
-	        url: 'http://devtest.qiniudn.com/Preparation.mp3',
-	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-	    	}
-	    ]
+	    music: subList
 		});
 		ap1.on('play', function () {
 		    console.log('play');
@@ -54,6 +61,11 @@ class Playlist extends Component {
 		ap1.on('error', function () {
 		    console.log('error');
 		});
+
+		this.setState({
+			trackList: subList,
+			player: ap1
+		})
 	}
 
 	searchPodcasts(event){
@@ -72,12 +84,14 @@ class Playlist extends Component {
 	}
 
 	componentDidUpdate() {
-		// console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
 		const selected = this.props.podcasts.selected
 		if (!selected) return
 		// feedUrl needs to come after the above statement or there will be an error
 		const feedUrl = this.props.podcasts.selected.feedUrl
 		if (!feedUrl) return
+
+		// prevent componentDidUpdate from continuously running
+		if (this.state.tracklist) return
 
 		const endpoint = '/feed'
 		APIClient
@@ -89,16 +103,20 @@ class Playlist extends Component {
 
 				item.forEach((track, i) => {
 					let trackInfo = {}
-					trackInfo['title'] = 'Title' + i
-					trackInfo['author'] = 'Author' + i
-					trackInfo['pic'] = 'http://www.podcastonesales.com/images/logos/pod_PMT_2_1400.jpg'
+					trackInfo['title'] = track.title[0]
+					trackInfo['author'] = this.props.podcasts.selected.collectionName
+					trackInfo['pic'] = this.props.podcasts.selected['artworkUrl600']
 					
 					let enclosure = track.enclosure[0]['$']
 					trackInfo['url'] = enclosure.url
 					list.push(trackInfo)
 				});
-				console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))
-				this.setState({tracklist: list})
+
+				// console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))				
+				
+				if (this.state.player == null) {
+					this.initializePlayer(list)
+				}
 			})
 			.catch(err => {
 				console.log('Playlist - ERROR in componentDidUpdate: '+JSON.stringify(err))
@@ -108,7 +126,7 @@ class Playlist extends Component {
 	render(){
 		return (
 			<div>
-				<div style={{paddingTop:64}}className="hero-header bg-shop animated fadeindown">
+				<div style={{paddingTop:64}} className="hero-header bg-shop animated fadeindown">
 					<div className="p-20 animated fadeinup delay-1">
 						<div style={{background: '#fff'}} id="player" className="aplayer"></div>
 					</div>								 
