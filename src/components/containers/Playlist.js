@@ -8,6 +8,9 @@ import actions from '../../actions'
 class Playlist extends Component {
 	constructor(props) {
 		super(props)
+		this.state = {
+			tracklist: []
+		}
 		this.searchPodcasts = this.searchPodcasts.bind(this)
 	}
 
@@ -22,24 +25,6 @@ class Playlist extends Component {
 	    preload: 'metadata',
 	    mode: 'circulation',
 	    music: [
-	    	{
-	        title: 'Preparation',
-	        author: 'Hans Zimmer/Richard Harvey',
-	        url: 'http://devtest.qiniudn.com/Preparation.mp3',
-	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-	    	},
-	    	{
-	        title: 'Preparation',
-	        author: 'Hans Zimmer/Richard Harvey',
-	        url: 'http://devtest.qiniudn.com/Preparation.mp3',
-	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-	    	},
-	    	{
-	        title: 'Preparation',
-	        author: 'Hans Zimmer/Richard Harvey',
-	        url: 'http://devtest.qiniudn.com/Preparation.mp3',
-	        pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-	    	},
 	    	{
 	        title: 'Preparation',
 	        author: 'Hans Zimmer/Richard Harvey',
@@ -77,23 +62,47 @@ class Playlist extends Component {
 		// console.log('searchPodcasts: '+event.target.value)
 		const endpoint = '/search/'+event.target.value
 		APIClient
-		.get(endpoint, null)
-		.then(response => {
-			this.props.podcastsReceived(response)
-		})
-		.catch(err => {
-			console.log('ERROR in searchPodcasts: '+JSON.stringify(err))
-		})
+			.get(endpoint, null)
+			.then(response => {
+				this.props.podcastsReceived(response)
+			})
+			.catch(err => {
+				console.log('Playlist - ERROR in searchPodcasts: '+JSON.stringify(err))
+			})
 	}
 
 	componentDidUpdate() {
-		console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
+		// console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
 		const selected = this.props.podcasts.selected
 		if (!selected) return
 		// feedUrl needs to come after the above statement or there will be an error
 		const feedUrl = this.props.podcasts.selected.feedUrl
 		if (!feedUrl) return
-		
+
+		const endpoint = '/feed'
+		APIClient
+			.get(endpoint, {url: feedUrl})
+			.then(response => {
+				const podcast = response.podcast
+				const item = podcast.item
+				let list = []
+
+				item.forEach((track, i) => {
+					let trackInfo = {}
+					trackInfo['title'] = 'Title' + i
+					trackInfo['author'] = 'Author' + i
+					trackInfo['pic'] = 'http://www.podcastonesales.com/images/logos/pod_PMT_2_1400.jpg'
+					
+					let enclosure = track.enclosure[0]['$']
+					trackInfo['url'] = enclosure.url
+					list.push(trackInfo)
+				});
+				console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))
+				this.setState({tracklist: list})
+			})
+			.catch(err => {
+				console.log('Playlist - ERROR in componentDidUpdate: '+JSON.stringify(err))
+			})
 	}
 
 	render(){

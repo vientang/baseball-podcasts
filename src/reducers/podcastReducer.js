@@ -14,7 +14,7 @@ export default (state = initialState, action) => {
 			return updatedState
 		case constants.PODCAST_SELECTED:
 			// console.log('PODCASTS_SELECTED', JSON.stringify(action.podcast))
-			// prevent updating state if user clicks same podcast twice in a row
+			// prevent excessive requests if user clicks same podcast twice in a row
 			if (updatedState.selected !== null) {
 				if (updatedState.selected.collectionId === action.podcast.collectionId) {
 					return state;

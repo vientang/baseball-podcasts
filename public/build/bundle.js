@@ -10588,6 +10588,9 @@ var Playlist = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, (Playlist.__proto__ || Object.getPrototypeOf(Playlist)).call(this, props));
 
+		_this.state = {
+			tracklist: []
+		};
 		_this.searchPodcasts = _this.searchPodcasts.bind(_this);
 		return _this;
 	}
@@ -10605,21 +10608,6 @@ var Playlist = function (_Component) {
 				preload: 'metadata',
 				mode: 'circulation',
 				music: [{
-					title: 'Preparation',
-					author: 'Hans Zimmer/Richard Harvey',
-					url: 'http://devtest.qiniudn.com/Preparation.mp3',
-					pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-				}, {
-					title: 'Preparation',
-					author: 'Hans Zimmer/Richard Harvey',
-					url: 'http://devtest.qiniudn.com/Preparation.mp3',
-					pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-				}, {
-					title: 'Preparation',
-					author: 'Hans Zimmer/Richard Harvey',
-					url: 'http://devtest.qiniudn.com/Preparation.mp3',
-					pic: 'http://devtest.qiniudn.com/Preparation.jpg'
-				}, {
 					title: 'Preparation',
 					author: 'Hans Zimmer/Richard Harvey',
 					url: 'http://devtest.qiniudn.com/Preparation.mp3',
@@ -10659,18 +10647,42 @@ var Playlist = function (_Component) {
 			_utils.APIClient.get(endpoint, null).then(function (response) {
 				_this2.props.podcastsReceived(response);
 			}).catch(function (err) {
-				console.log('ERROR in searchPodcasts: ' + JSON.stringify(err));
+				console.log('Playlist - ERROR in searchPodcasts: ' + JSON.stringify(err));
 			});
 		}
 	}, {
 		key: 'componentDidUpdate',
 		value: function componentDidUpdate() {
-			console.log("componentDidUpdate: " + JSON.stringify(this.props.podcasts.selected));
+			var _this3 = this;
+
+			// console.log("componentDidUpdate: "+JSON.stringify(this.props.podcasts.selected))
 			var selected = this.props.podcasts.selected;
 			if (!selected) return;
 			// feedUrl needs to come after the above statement or there will be an error
 			var feedUrl = this.props.podcasts.selected.feedUrl;
 			if (!feedUrl) return;
+
+			var endpoint = '/feed';
+			_utils.APIClient.get(endpoint, { url: feedUrl }).then(function (response) {
+				var podcast = response.podcast;
+				var item = podcast.item;
+				var list = [];
+
+				item.forEach(function (track, i) {
+					var trackInfo = {};
+					trackInfo['title'] = 'Title' + i;
+					trackInfo['author'] = 'Author' + i;
+					trackInfo['pic'] = 'http://www.podcastonesales.com/images/logos/pod_PMT_2_1400.jpg';
+
+					var enclosure = track.enclosure[0]['$'];
+					trackInfo['url'] = enclosure.url;
+					list.push(trackInfo);
+				});
+				console.log('Playlist - componentDidUpdate: ' + JSON.stringify(list));
+				_this3.setState({ tracklist: list });
+			}).catch(function (err) {
+				console.log('Playlist - ERROR in componentDidUpdate: ' + JSON.stringify(err));
+			});
 		}
 	}, {
 		key: 'render',
@@ -11145,7 +11157,7 @@ exports.default = function () {
 			return updatedState;
 		case _constants2.default.PODCAST_SELECTED:
 			// console.log('PODCASTS_SELECTED', JSON.stringify(action.podcast))
-			// prevent updating state if user clicks same podcast twice in a row
+			// prevent excessive requests if user clicks same podcast twice in a row
 			if (updatedState.selected !== null) {
 				if (updatedState.selected.collectionId === action.podcast.collectionId) {
 					return state;
