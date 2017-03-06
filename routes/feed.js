@@ -26,17 +26,19 @@ router.get('/', function(req, res, next) {
 			}
 
 			// parse data from xml to json
-			var xml = response.text
+			var xml = response.text;
 			parseString(xml, function (err, result) {
-				var rss = result.rss
-				var channel = rss.channel
-				if (channel.length) {
-					channel = channel[0]
+				if (result) {
+					var rss = result.rss
+					var channel = rss.channel
+					if (channel.length) {
+						channel = channel[0]
+					}
+				  res.json({
+				  	confirmation: "Success", 
+				  	podcast: channel
+				  })
 				}
-			  res.json({
-			  	confirmation: "Success", 
-			  	podcast: channel
-			  })
 			})			
 		})
 })

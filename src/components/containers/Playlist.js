@@ -1,5 +1,5 @@
 import React, { Component} from 'react'
-import { Search } from '../presentation'
+import { Title } from '../presentation'
 import { APIClient } from '../../utils'
 import { connect } from 'react-redux'
 import APlayer from 'aplayer'
@@ -8,18 +8,18 @@ import actions from '../../actions'
 class Playlist extends Component {
 	constructor() {
 		super()
-		this.state = {
-			tracklist: null,
+		this.state = {			
 			player: null
 		}
 		this.searchPodcasts = this.searchPodcasts.bind(this)
 	}
 
-	componentDidMount() {		
-
+	componentDidMount() {
+		// initially load the player with baseball podcasts	
+		this.searchPodcasts('baseball')
 	}
 
-	initializePlayer(list) {
+	initializePlayer(list) {		
 		let subList = [];
 		if (list.length > 3) {
 			for (var i = 0; i < 3; i++) {
@@ -63,39 +63,47 @@ class Playlist extends Component {
 		});
 
 		this.setState({
-			trackList: subList,
 			player: ap1
 		})
 	}
 
-	searchPodcasts(event){
-		if (event.keyCode != 13) 
-			return
-		// console.log('searchPodcasts: '+event.target.value)
-		const endpoint = '/search/'+event.target.value
+	searchPodcasts(topic){
+		const endpoint = '/search/'+topic
 		APIClient
 			.get(endpoint, null)
 			.then(response => {
-				this.props.podcastsReceived(response)
+				//console.log("Response results is ", response)
+				this.props.podcastsReceived(response.results)
 			})
 			.catch(err => {
 				console.log('Playlist - ERROR in searchPodcasts: '+JSON.stringify(err))
 			})
 	}
 
-	componentDidUpdate() {
-		const selected = this.props.podcasts.selected
-		if (!selected) return
+	componentDidUpdate() {		
+		if (this.props.podcasts.selected == null) return
 		// feedUrl needs to come after the above statement or there will be an error
-		const feedUrl = this.props.podcasts.selected.feedUrl
-		if (!feedUrl) return
+		const feedUrl = this.props.podcasts.selected['feedUrl']
+		if (feedUrl == null) return
 
-		// prevent componentDidUpdate from continuously running
-		if (this.state.tracklist) return
+		// initialize the player when no podcast has been selected
+		if (this.props.podcasts.trackList != null) {
+			if (this.state.player == null) {
+				this.initializePlayer(this.props.podcasts.trackList)
+			}
+			return
+		}
 
-		const endpoint = '/feed'
+		// reset the player when another podcast is selected
+		if (this.state.player != null ) {
+			this.state.player.pause()
+			this.setState({
+				player: null
+			})
+		}
+
 		APIClient
-			.get(endpoint, {url: feedUrl})
+			.get('/feed', {url: feedUrl})
 			.then(response => {
 				const podcast = response.podcast
 				const item = podcast.item
@@ -108,15 +116,10 @@ class Playlist extends Component {
 					trackInfo['pic'] = this.props.podcasts.selected['artworkUrl600']
 					
 					let enclosure = track.enclosure[0]['$']
-					trackInfo['url'] = enclosure.url
+					trackInfo['url'] = enclosure['url']
 					list.push(trackInfo)
-				});
-
-				// console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))				
-				
-				if (this.state.player == null) {
-					this.initializePlayer(list)
-				}
+				})
+				this.props.trackListReady(list)
 			})
 			.catch(err => {
 				console.log('Playlist - ERROR in componentDidUpdate: '+JSON.stringify(err))
@@ -126,13 +129,13 @@ class Playlist extends Component {
 	render(){
 		return (
 			<div>
-				<div style={{paddingTop:64}} className="hero-header bg-shop animated fadeindown">
+				<div style={{paddingTop:64}} className="hero-header bg-mlb animated fadeindown">					
 					<div className="p-20 animated fadeinup delay-1">
 						<div style={{background: '#fff'}} id="player" className="aplayer"></div>
 					</div>								 
 				</div>
 
-				<Search onSearch={this.searchPodcasts} />
+				<Title />
 			</div>
 		)
 	}
@@ -146,7 +149,8 @@ const stateToProps = (state) => {
 
 const dispatchToProps = (dispatch) => {
 	return {
-		podcastsReceived: (podcasts) => dispatch(actions.podcastsReceived(podcasts))
+		podcastsReceived: (podcasts) => dispatch(actions.podcastsReceived(podcasts)),
+		trackListReady: (list) => dispatch(actions.trackListReady(list))
 	}
 }
 

@@ -6922,6 +6922,12 @@ exports.default = {
 			type: _constants2.default.PODCAST_SELECTED,
 			podcast: podcast
 		};
+	},
+	trackListReady: function trackListReady(list) {
+		return {
+			type: _constants2.default.TRACKLIST_READY,
+			list: list
+		};
 	}
 };
 
@@ -6935,7 +6941,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.Search = exports.Footer = exports.Navigation = undefined;
+exports.Title = exports.Search = exports.Footer = exports.Navigation = undefined;
 
 var _Navigation = __webpack_require__(106);
 
@@ -6949,11 +6955,16 @@ var _Search = __webpack_require__(107);
 
 var _Search2 = _interopRequireDefault(_Search);
 
+var _Title = __webpack_require__(246);
+
+var _Title2 = _interopRequireDefault(_Title);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.Navigation = _Navigation2.default;
 exports.Footer = _Footer2.default;
 exports.Search = _Search2.default;
+exports.Title = _Title2.default;
 
 /***/ }),
 /* 60 */
@@ -6968,7 +6979,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
 	SEARCH_PODCASTS: 'SEARCH_PODCASTS',
 	PODCASTS_RECEIVED: 'PODCASTS_RECEIVED',
-	PODCAST_SELECTED: 'PODCAST_SELECTED'
+	PODCAST_SELECTED: 'PODCAST_SELECTED',
+	TRACKLIST_READY: 'TRACKLIST_READY'
 };
 
 /***/ }),
@@ -10589,7 +10601,6 @@ var Playlist = function (_Component) {
 		var _this = _possibleConstructorReturn(this, (Playlist.__proto__ || Object.getPrototypeOf(Playlist)).call(this));
 
 		_this.state = {
-			tracklist: null,
 			player: null
 		};
 		_this.searchPodcasts = _this.searchPodcasts.bind(_this);
@@ -10598,7 +10609,10 @@ var Playlist = function (_Component) {
 
 	_createClass(Playlist, [{
 		key: 'componentDidMount',
-		value: function componentDidMount() {}
+		value: function componentDidMount() {
+			// initially load the player with baseball podcasts	
+			this.searchPodcasts('baseball');
+		}
 	}, {
 		key: 'initializePlayer',
 		value: function initializePlayer(list) {
@@ -10645,20 +10659,18 @@ var Playlist = function (_Component) {
 			});
 
 			this.setState({
-				trackList: subList,
 				player: ap1
 			});
 		}
 	}, {
 		key: 'searchPodcasts',
-		value: function searchPodcasts(event) {
+		value: function searchPodcasts(topic) {
 			var _this2 = this;
 
-			if (event.keyCode != 13) return;
-			// console.log('searchPodcasts: '+event.target.value)
-			var endpoint = '/search/' + event.target.value;
+			var endpoint = '/search/' + topic;
 			_utils.APIClient.get(endpoint, null).then(function (response) {
-				_this2.props.podcastsReceived(response);
+				//console.log("Response results is ", response)
+				_this2.props.podcastsReceived(response.results);
 			}).catch(function (err) {
 				console.log('Playlist - ERROR in searchPodcasts: ' + JSON.stringify(err));
 			});
@@ -10668,17 +10680,28 @@ var Playlist = function (_Component) {
 		value: function componentDidUpdate() {
 			var _this3 = this;
 
-			var selected = this.props.podcasts.selected;
-			if (!selected) return;
+			if (this.props.podcasts.selected == null) return;
 			// feedUrl needs to come after the above statement or there will be an error
-			var feedUrl = this.props.podcasts.selected.feedUrl;
-			if (!feedUrl) return;
+			var feedUrl = this.props.podcasts.selected['feedUrl'];
+			if (feedUrl == null) return;
 
-			// prevent componentDidUpdate from continuously running
-			if (this.state.tracklist) return;
+			// initialize the player when no podcast has been selected
+			if (this.props.podcasts.trackList != null) {
+				if (this.state.player == null) {
+					this.initializePlayer(this.props.podcasts.trackList);
+				}
+				return;
+			}
 
-			var endpoint = '/feed';
-			_utils.APIClient.get(endpoint, { url: feedUrl }).then(function (response) {
+			// reset the player when another podcast is selected
+			if (this.state.player != null) {
+				this.state.player.pause();
+				this.setState({
+					player: null
+				});
+			}
+
+			_utils.APIClient.get('/feed', { url: feedUrl }).then(function (response) {
 				var podcast = response.podcast;
 				var item = podcast.item;
 				var list = [];
@@ -10690,15 +10713,10 @@ var Playlist = function (_Component) {
 					trackInfo['pic'] = _this3.props.podcasts.selected['artworkUrl600'];
 
 					var enclosure = track.enclosure[0]['$'];
-					trackInfo['url'] = enclosure.url;
+					trackInfo['url'] = enclosure['url'];
 					list.push(trackInfo);
 				});
-
-				// console.log('Playlist - componentDidUpdate: '+JSON.stringify(list))				
-
-				if (_this3.state.player == null) {
-					_this3.initializePlayer(list);
-				}
+				_this3.props.trackListReady(list);
 			}).catch(function (err) {
 				console.log('Playlist - ERROR in componentDidUpdate: ' + JSON.stringify(err));
 			});
@@ -10711,14 +10729,14 @@ var Playlist = function (_Component) {
 				null,
 				_react2.default.createElement(
 					'div',
-					{ style: { paddingTop: 64 }, className: 'hero-header bg-shop animated fadeindown' },
+					{ style: { paddingTop: 64 }, className: 'hero-header bg-mlb animated fadeindown' },
 					_react2.default.createElement(
 						'div',
 						{ className: 'p-20 animated fadeinup delay-1' },
 						_react2.default.createElement('div', { style: { background: '#fff' }, id: 'player', className: 'aplayer' })
 					)
 				),
-				_react2.default.createElement(_presentation.Search, { onSearch: this.searchPodcasts })
+				_react2.default.createElement(_presentation.Title, null)
 			);
 		}
 	}]);
@@ -10736,6 +10754,9 @@ var dispatchToProps = function dispatchToProps(dispatch) {
 	return {
 		podcastsReceived: function podcastsReceived(podcasts) {
 			return dispatch(_actions2.default.podcastsReceived(podcasts));
+		},
+		trackListReady: function trackListReady(list) {
+			return dispatch(_actions2.default.trackListReady(list));
 		}
 	};
 };
@@ -10776,16 +10797,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Podcasts = function (_Component) {
 	_inherits(Podcasts, _Component);
 
-	function Podcasts(props) {
+	function Podcasts() {
 		_classCallCheck(this, Podcasts);
 
-		return _possibleConstructorReturn(this, (Podcasts.__proto__ || Object.getPrototypeOf(Podcasts)).call(this, props));
+		return _possibleConstructorReturn(this, (Podcasts.__proto__ || Object.getPrototypeOf(Podcasts)).apply(this, arguments));
 	}
 
 	_createClass(Podcasts, [{
 		key: 'selectPodcast',
 		value: function selectPodcast(podcast, event) {
-			// console.log("Podcast selected", JSON.stringify(podcast))
 			this.props.podcastSelected(podcast);
 		}
 	}, {
@@ -10794,12 +10814,10 @@ var Podcasts = function (_Component) {
 			var _this2 = this;
 
 			var list = this.props.podcasts.all || [];
-
-			// console.log("List is ", list)
 			return _react2.default.createElement(
 				'div',
 				null,
-				this.props.podcasts.all && list.response.map(function (podcast, i) {
+				this.props.podcasts.all && list.map(function (podcast, i) {
 					return _react2.default.createElement(
 						'div',
 						{ key: i, className: 'shop-banner animated fadeinup delay-2' },
@@ -11161,7 +11179,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var initialState = {
 	all: null,
-	selected: null
+	selected: null,
+	trackList: null
 };
 
 exports.default = function () {
@@ -11182,7 +11201,12 @@ exports.default = function () {
 					return state;
 				}
 			}
+			updatedState['trackList'] = null;
 			updatedState['selected'] = action.podcast;
+			return updatedState;
+		case _constants2.default.TRACKLIST_READY:
+			// console.log('TRACKLIST_READY', JSON.stringify(action.list))
+			updatedState['trackList'] = action.list;
 			return updatedState;
 		default:
 			return state;
@@ -32660,6 +32684,43 @@ var App = function (_Component) {
 }(_react.Component);
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('app'));
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _react = __webpack_require__(10);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (props) {
+	return _react2.default.createElement(
+		"div",
+		{ className: "form-inputs p-20" },
+		_react2.default.createElement(
+			"div",
+			null,
+			_react2.default.createElement(
+				"div",
+				{ className: "input-field animated fadeinright center" },
+				_react2.default.createElement(
+					"h3",
+					{ className: "" },
+					"Baseball Podcasts"
+				)
+			)
+		)
+	);
+};
 
 /***/ })
 /******/ ]);

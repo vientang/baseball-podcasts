@@ -318,6 +318,11 @@ video.responsive-video {
               no-repeat 
               center / cover;
 }
+.bg-mlb {
+  background: url(../img/mlb_panel_5.jpg) 
+              no-repeat 
+              center / cover;
+}
 /* Overlay Layers */
 .opacity-overlay {
     position: absolute;
@@ -434,6 +439,7 @@ footer.page-footer .footer-copyright {
   position: relative;
   z-index: 1;
   min-height: 212px;
+  background-color: green;
 }
 .hero-header.hero-small {
   min-height: 56px;
