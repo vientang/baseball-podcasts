@@ -4,6 +4,7 @@ import { APIClient } from '../../utils'
 import { connect } from 'react-redux'
 import APlayer from 'aplayer'
 import actions from '../../actions'
+import { Navigation } from '../presentation'
 
 class Playlist extends Component {
 	constructor() {
@@ -15,7 +16,7 @@ class Playlist extends Component {
 	}
 
 	componentDidMount() {
-		// initially load the player with baseball podcasts	
+		// initially load the player with baseball podcasts
 		this.searchPodcasts('baseball')
 	}
 
@@ -126,17 +127,11 @@ class Playlist extends Component {
 			})
 	}
 
+	// render the player in Navigation component when podcast is clicked
+	// need to automatically trigger the menu icon
 	render(){
 		return (
-			<div>
-				<div style={{paddingTop:64}} className="hero-header bg-mlb animated fadeindown">					
-					<div className="p-20 animated fadeinup delay-1">
-						<div style={{background: '#fff'}} id="player" className="aplayer"></div>
-					</div>								 
-				</div>
-
-				<Title />
-			</div>
+			this.state.player && <Navigation player={this.state.player}/>
 		)
 	}
 }

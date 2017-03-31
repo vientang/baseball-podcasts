@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 246);
@@ -10721,14 +10721,23 @@ var Playlist = function (_Component) {
 				console.log('Playlist - ERROR in componentDidUpdate: ' + JSON.stringify(err));
 			});
 		}
-
-		// render the player in Navigation component when podcast is clicked
-		// need to automatically trigger the menu icon
-
 	}, {
 		key: 'render',
 		value: function render() {
-			return this.state.player && _react2.default.createElement(_presentation.Navigation, { player: this.state.player });
+			return _react2.default.createElement(
+				'div',
+				null,
+				_react2.default.createElement(
+					'div',
+					{ style: { paddingTop: 64 }, className: 'hero-header bg-mlb animated fadeindown' },
+					_react2.default.createElement(
+						'div',
+						{ className: 'p-20 animated fadeinup delay-1' },
+						_react2.default.createElement('div', { style: { background: '#fff' }, id: 'player', className: 'aplayer' })
+					)
+				),
+				_react2.default.createElement(_presentation.Title, null)
+			);
 		}
 	}]);
 
@@ -11025,56 +11034,74 @@ var _react = __webpack_require__(9);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _index = __webpack_require__(59);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (props) {
   return _react2.default.createElement(
-    'div',
+    "div",
     null,
     _react2.default.createElement(
-      'div',
-      { className: 'menu-trigger z-depth-2' },
+      "div",
+      { className: "menu-trigger z-depth-2" },
       _react2.default.createElement(
-        'div',
-        { id: 'menu-icon' },
-        _react2.default.createElement('span', null),
-        _react2.default.createElement('span', null),
-        _react2.default.createElement('span', null),
-        _react2.default.createElement('span', null)
+        "div",
+        { id: "menu-icon" },
+        _react2.default.createElement("span", null),
+        _react2.default.createElement("span", null),
+        _react2.default.createElement("span", null),
+        _react2.default.createElement("span", null)
       )
     ),
     _react2.default.createElement(
-      'nav',
-      { id: 'menu', className: 'menu' },
+      "nav",
+      { id: "menu", className: "menu" },
       _react2.default.createElement(
-        'div',
-        { className: 'menu-navigation' },
+        "div",
+        { className: "menu-navigation" },
         _react2.default.createElement(
-          'div',
-          { className: 'full-menu collapsible' },
+          "ul",
+          { className: "full-menu collapsible" },
           _react2.default.createElement(
-            'div',
-            { style: { paddingTop: 64 }, className: 'hero-header bg-mlb animated fadeindown' },
+            "li",
+            null,
             _react2.default.createElement(
-              'div',
-              { className: 'p-20 animated fadeinup delay-1' },
-              _react2.default.createElement('div', { style: { background: '#fff' }, id: 'player', className: 'aplayer' })
+              "a",
+              { href: "shop.html", className: "no-child" },
+              "Shop"
             )
           ),
-          _react2.default.createElement(_index.Title, null)
+          _react2.default.createElement(
+            "li",
+            null,
+            _react2.default.createElement(
+              "a",
+              { href: "news.html", className: "no-child" },
+              "News"
+            )
+          ),
+          _react2.default.createElement(
+            "li",
+            null,
+            _react2.default.createElement(
+              "a",
+              { href: "video.html", className: "no-child" },
+              "Video"
+            )
+          ),
+          _react2.default.createElement(
+            "li",
+            null,
+            _react2.default.createElement(
+              "a",
+              { href: "contact.html", className: "no-child" },
+              "Contact"
+            )
+          )
         )
       )
     )
   );
 };
-// <ul className="full-menu collapsible">
-//   <li><a href="shop.html" className="no-child">Shop</a></li>
-//   <li><a href="news.html" className="no-child">News</a></li>
-//   <li><a href="video.html" className="no-child">Video</a></li>
-//   <li><a href="contact.html" className="no-child">Contact</a></li>
-// </ul>
 
 /***/ }),
 /* 107 */

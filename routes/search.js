@@ -21,6 +21,10 @@ router.get('/:term', function(req, res, next) {
 			}
 			
 			var data = JSON.parse(response.text);
+			// var feedUrls = data.results.map(function(podcast) {
+			// 	return podcast.feedUrl;
+			// })
+			// console.log(feedUrls)
 			res.json({
 		  	confirmation: 'Success',
 		  	results: data.results
