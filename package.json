@@ -42,5 +42,16 @@
   "bugs": {
     "url": "https://github.com/vientang/baseball-podcasts/issues"
   },
-  "homepage": "https://github.com/vientang/baseball-podcasts#readme"
+  "homepage": "https://github.com/vientang/baseball-podcasts#readme",
+  "contributors": [
+    {
+      "name": "Vien",
+      "email": null,
+      "url": "https://github.com/vientang",
+      "contributions": 14,
+      "additions": 128095,
+      "deletions": 14845,
+      "hireable": null
+    }
+  ]
 }
